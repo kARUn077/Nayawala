@@ -22,7 +22,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-const MEDIA_API = "https://teach-dex.vercel.app/api/v1/media";
+const MEDIA_API = "https://udemy-tech.onrender.com/api/v1/media";
 
 const LectureTab = () => {
   const params = useParams();

@@ -94,7 +94,7 @@ const Navbar = () => {
       ) : (
         <div className="flex items-center gap-2">
           <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50" onClick={() => navigate("/login")}>Login</Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => navigate("/signup")}>Signup</Button>
+          {/* <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => navigate("/signup")}>Signup</Button> */}
         </div>
       )}
       <DarkMode />
@@ -154,7 +154,7 @@ const MobileNavbar = ({ user, onLogout }) => {
           ) : (
             <>
               <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50" onClick={() => navigate("/login")}>Login</Button>
-              <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={() => navigate("/signup")}>Signup</Button>
+              {/* <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={() => navigate("/signup")}>Signup</Button> */}
             </>
           )}
         </nav>

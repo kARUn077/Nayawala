@@ -8,7 +8,7 @@ import UserRoute from "./routes/user.routes.js"
 import mediaRoute from "./routes/media.route.js"
 import courseProgressRoute from "./routes/courseProgress.route.js"
 import purchaseRoute from "./routes/purchaseCourse.route.js"
-import { stripeWebhook } from "./controllers/coursePurchase.controller.js";
+import { stripeWebhook } from "./controller/coursePurchase.controller.js";
 //database called
 dotenv.config({});
 connectDB();

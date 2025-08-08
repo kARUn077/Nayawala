@@ -15,7 +15,6 @@ connectDB();
 
 const app = express();
 
-// ✅ CORS middleware first
 app.use(cors({
   origin: [
     "https://teach-dex.vercel.app",
@@ -24,29 +23,32 @@ app.use(cors({
   credentials: true,
 }));
 
-// ✅ Cookie + body parsers must be BEFORE your routes
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// ✅ Stripe webhook must come BEFORE body parsers (special case)
+// ✅ Webhook first
 app.post(
   "/api/v1/purchase/webhook",
   express.raw({ type: "application/json" }),
   stripeWebhook
 );
 
-// ✅ Your actual routes
+// ✅ FILE UPLOAD ROUTES BEFORE body parsers
+app.use("/api/v1/media", mediaRoute); // this includes multer and needs raw multipart
+
+// ✅ After that, apply body parsers
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+
+// ✅ Remaining API routes
 app.use("/api/v1/user", UserRoute);
 app.use("/api/v1/course", courseRoute);
-app.use("/api/v1/media", mediaRoute);
 app.use("/api/v1/purchase", purchaseRoute);
 app.use("/api/v1/progress", courseProgressRoute);
 
+// Test
 app.get("/", (_, res) => {
   res.status(200).json({
     success: true,
-    message: "i m coming from backend beta bakchodi nahi"
+    message: "i m coming from backend beta bakchodi nahi",
   });
 });
 

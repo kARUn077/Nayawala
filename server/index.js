@@ -8,22 +8,30 @@ import UserRoute from "./routes/user.routes.js"
 import mediaRoute from "./routes/media.route.js"
 import courseProgressRoute from "./routes/courseProgress.route.js"
 import purchaseRoute from "./routes/purchaseCourse.route.js"
-dotenv.config({});
+import { stripeWebhook } from "./controllers/coursePurchase.controller.js";
 //database called
+dotenv.config({});
 connectDB();
 
 const app = express();
+
+app.use(cors({
+  origin: [
+    "https://teach-dex.vercel.app",
+    "http://localhost:5173"
+  ],
+  credentials: true,
+}));
+
+app.post(
+  "/api/v1/purchase/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhook
+);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-     "https://teach-dex.vercel.app" 
-  ],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
 
 
 // apis
@@ -40,5 +48,5 @@ app.get("/",(_,res)=>{
     })
 })
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

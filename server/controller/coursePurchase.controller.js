@@ -6,7 +6,7 @@ import { User } from "../models/user.model.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+const CLIENT_URL = "https://teach-dex.vercel.app";
 
 export const createCheckoutSession = async (req, res) => {
   try {

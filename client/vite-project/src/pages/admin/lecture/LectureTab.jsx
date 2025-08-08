@@ -180,7 +180,7 @@ const LectureTab = () => {
           </Label>
           <Input
             type="file"
-            accept="vedio/*"
+            accept="video/*"
             onChange={fileChangeHandler}
             className="w-fit"
             placeholder="ex.Introduction to Nodejs "

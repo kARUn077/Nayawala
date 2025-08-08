@@ -72,26 +72,21 @@ export const createCheckoutSession = async (req, res) => {
 };
 
 export const stripeWebhook = async (req, res) => {
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
   let event;
 
   try {
-    const payloadString = JSON.stringify(req.body, null, 2);
-    const secret = process.env.WEBHOOK_ENDPOINT_SECRET;
-
-    const header = stripe.webhooks.generateTestHeaderString({
-      payload: payloadString,
-      secret,
-    });
-
-    event = stripe.webhooks.constructEvent(payloadString, header, secret);
+    const sig = req.headers['stripe-signature'];
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (error) {
-    console.error("Webhook error:", error.message);
+    console.error("Webhook signature verification failed:", error.message);
     return res.status(400).send(`Webhook error: ${error.message}`);
   }
 
-  // Handle the checkout session completed event
+  // Process only 'checkout.session.completed'
   if (event.type === "checkout.session.completed") {
-    console.log("check session complete is called");
+    console.log("Stripe checkout.session.completed triggered");
 
     try {
       const session = event.data.object;
@@ -104,12 +99,9 @@ export const stripeWebhook = async (req, res) => {
         return res.status(404).json({ message: "Purchase not found" });
       }
 
-      if (session.amount_total) {
-        purchase.amount = session.amount_total / 100;
-      }
+      purchase.amount = session.amount_total / 100;
       purchase.status = "completed";
 
-      // Make all lectures visible by setting `isPreviewFree` to true
       if (purchase.courseId && purchase.courseId.lectures.length > 0) {
         await Lecture.updateMany(
           { _id: { $in: purchase.courseId.lectures } },
@@ -119,26 +111,28 @@ export const stripeWebhook = async (req, res) => {
 
       await purchase.save();
 
-      // Update user's enrolledCourses
       await User.findByIdAndUpdate(
         purchase.userId,
-        { $addToSet: { enrolledCourses: purchase.courseId._id } }, // Add course ID to enrolledCourses
+        { $addToSet: { enrolledCourses: purchase.courseId._id } },
         { new: true }
       );
 
-      // Update course to add user ID to enrolledStudents
       await Course.findByIdAndUpdate(
         purchase.courseId._id,
-        { $addToSet: { enrolledStudents: purchase.userId } }, // Add user ID to enrolledStudents
+        { $addToSet: { enrolledStudents: purchase.userId } },
         { new: true }
       );
     } catch (error) {
-      console.error("Error handling event:", error);
+      console.error("Error handling Stripe webhook event:", error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   }
-  res.status(200).send();
+
+  res.status(200).json({ received: true });
 };
+
+
+
 export const getCourseDetailWithPurchaseStatus = async (req, res) => {
   try {
     const { courseId } = req.params;
